@@ -1,12 +1,10 @@
 ---
 layout: default
 ---
-
-<article class="page">
-
-  <h1>{{ page.title }}</h1>
-
-  <div class="entry">
+<div class="c-page">
+    {% include header.html %}
+    <div class="c-page__main">
     {{ content }}
-  </div>
-</article>
+    </div>
+    {% include footer.html %}
+</div>
