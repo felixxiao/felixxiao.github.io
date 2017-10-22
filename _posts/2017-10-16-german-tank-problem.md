@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "The German Tank Problem"
-description: "How a statistical theory helped the Allies defeat Nazi Germany"
+description:
 date: 2017-10-16
 tags: estimation
 comments: true
