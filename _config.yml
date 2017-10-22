@@ -1,12 +1,11 @@
 # Site settings
-title: "Paper Jekyll Theme"
-description: > 
-  Write a description of your website here.
+title: "Felix Xiao"
+description: 
 
 author: Felix Xiao
 email:
 twitter_username:
-github_username:
+github_username: felixxiao
 
 #baseurl: "/paper-jekyll-theme" # the subpath of your site, e.g. /blog
 #url: "https://deadbeef.me" # the base hostname & protocol for your site
