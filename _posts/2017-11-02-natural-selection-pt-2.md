@@ -83,15 +83,23 @@ where $\psi_0(\alpha) = \frac{\diff}{\diff \alpha} \log \Gamma(\alpha)$ is the [
 $$
 \begin{align}
 \alpha_{t+1} &= \alpha_t - \left( l_\alpha^{(t)} l_{\beta \beta}^{(t)} - l_\beta^{(t)} l_{\alpha \beta}^{(t)} \right) / \text{det}(\mathbf{H}^{(t)}) \\
-\beta_{t+1} &= \beta_{t+1} - \left( l_\beta^{(t)} l_{\alpha \alpha}^{(t)} - l_\alpha^{(t)} l_{\alpha \beta}^{(t)} \right) / \text{det}(\mathbf{H}^{(t)}) \\
+\beta_{t+1} &= \beta_t - \left( l_\beta^{(t)} l_{\alpha \alpha}^{(t)} - l_\alpha^{(t)} l_{\alpha \beta}^{(t)} \right) / \text{det}(\mathbf{H}^{(t)}) \\
 \end{align}
 $$
 
-where $l_\alpha^{(t)}$ is the partial derivative of the log likelihood with respect to $\alpha$, evaluated with $\alpha_t$ and $\beta_t$) and $\mathbf{H}^{(t)}$ is the Hessian matrix of $l^{(t)}$.
+where $l_\alpha^{(t)}$
+is the partial derivative of the log likelihood with respect to $\alpha$, evaluated with $\alpha_t$ and $\beta_t$) and $\mathbf{H}^{(t)}$ is the Hessian matrix of $l^{(t)}$. A good initialization point for $\alpha$ and $\beta$ is found by using [method of moments](https://en.wikipedia.org/wiki/Method_of_moments_(statistics)) on the vector $x : x_i = s_i / m_i$. By matching population and sample moments, we get the initial points
+
+$$
+\alpha_0 = \frac{\bar{x}^2}{\overline{x^2} - \bar{x}^2} \\
+\beta_0 = \alpha_0 / \bar{x}
+$$
+
+The denominator of $\alpha_0$, $\overline{x^2} - \bar{x}^2 \geq 0$ by [Jensen's inequality](https://en.wikipedia.org/wiki/Jensen%27s_inequality), and is 0 if and only if all the entries of $x$ are the same, in which case you can add a 1 to the denominator to get a finite initial value.
 
 ## Inference with offspring counts
 
-Now suppose we don't have genealogical information, and the only data we have access to is the offspring counts of randomly sampled, unrelated individuals from various generations. Like before, we'll use $s_{ij}$ to denote the number of offspring born to the $j$th individual sampled from generation $i$. Let $\mathcal{I}$ be the set of generations, not necessarily consecutive, from which we have data. We'll use $n$ for the cardinality of $\mathcal{I}$ and $m_i$ the number of individuals from generation $i$th in our dataset.
+Now suppose we don't have genealogical information, and the only data we have access to is the offspring counts of randomly sampled, unrelated individuals from various generations. We'll change our notation to let $s_{ij}$ denote the number of offspring born to the $j$th individual sampled from generation $i$ (as opposed to the $j$th individual from family $i$). Let $\mathcal{I}$ be the set of generations, not necessarily consecutive, from which we have data. We'll use $m_i$ for the count of individuals from generation $i$th in our dataset.
 
 First we need to model how the distribution of $F_i$ changes over each generation given a starting distribution. As before, we'll let the starting generation fitness $F_0$ be a gamma distribution parametrized by $\alpha$ and $\beta$, and the number of offspring born given fitness $f$ be $\text{Poisson}(f)$. Using a result from the previous post, we get a recursive equation for the distribution of the next generation in terms of the distribution of the previous:
 
