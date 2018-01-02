@@ -23,15 +23,15 @@ $$
 
 Suppose you are betting money in a horse race, and you make or lose money depending on whether you can correctly predict which horse will win first, second, or third place. Suppose further you have access to rankings from past races, e.g.:
 
-| Race           | Horse             | Rank |
-| -------------- | ----------------- | ---- |
-| Kentucky Derby | Oceancake         | 3    |
-| Kentucky Derby | Jellyfish         | 1    |
-| Kentucky Derby | Bureaucracy       | 2    |
-| Belmont Stakes | Jellyfish         | 3    |
-| Belmont Stakes | Trotty McTrotface | 1    |
+Race           | Horse             | Rank
+-------------- | ----------------- | ----
+Kentucky Derby | Oceancake         |    3   
+Kentucky Derby | Jellyfish         |    1   
+Kentucky Derby | Bureaucracy       |    2   
+Belmont Stakes | Jellyfish         |    3   
+Belmont Stakes | Trotty McTrotface |    1   
 
-... and so on. How would use this data to predict the results of the upcoming race?
+... and so on. How do you use this data to predict the results of the upcoming race?
 
 The Plackett-Luce model (or generalized Bradley-Terry model) is the most widely studied probabilistic model for rank data, favored for its mathematical simplicity and intuitive theory. The model is derived from Luce's choice axiom, which requires that the probability of selecting one item over another is independent of all other alternatives:
 
@@ -74,6 +74,8 @@ $$ \mathcal{l}_\alpha (w) = \sum_{l=1}^n \left( \log w_{i_l} - \log \sum_{j \in 
 for $\alpha \geq 0$ and $ \sum_{k=1}^m w_k = 1 $.
 
 Without the equality constraint on the $w_k$, the problem becomes unbounded -- the objective can always be increased by multiplying the current $w$ by a scalar greater than 1. To see why the $\sum_{k=1}^m \log w_k$ term encourages the strengths to be closer together, see the below plot of the level sets of $\log w_1 + \log w_2$ for $m = 2$. The line segment represents the feasible set of $w$ given by the equality and nonnegative constraints. The level sets that intersect the line segment closer to its mid point have higher function values.
+
+![](../../assets/luce1.png)
 
 It is interesting to note that this penalized log-likelihood formulation is equivalent to Bayesian inference of the Plackett-Luce model with a symmetric Dirichlet prior on the choice strengths. The penalty term is also concave thanks to $\alpha \geq 0$, so following the technique in Hunter 2004, we obtain the following minorization of the above:
 
