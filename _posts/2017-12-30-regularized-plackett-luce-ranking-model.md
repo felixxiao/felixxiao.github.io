@@ -49,7 +49,7 @@ $$ \Prb(i_1 \succ i_2 \succ ... \succ i_m | A) =
   \cdots
   \frac{w_{i_{m-1}}}{w_{i_{m-1}} + w_{i_m}} $$
 
-Hence a single ranking of $m$ items consists of $m-1$ comparisons. Let our data $\mathcal{D} = \\{(i_l, A_l)\\}_{l=1}^n$ be a collection of $n$ comparisons, where the $i_l$ indices the winner of the $l$th comparison and $A_l$ represents the set of alternatives which contains $i_l$. The log-likelihood of this data with nonnegative strengths $w$ is
+Hence a single ranking of $m$ items consists of $m-1$ comparisons. Let our data $\mathcal{D} = \\{(i_l, A_l)\\}_{l=1}^n$ be a collection of $n$ comparisons, where the $i_l$ indicates the winner of the $l$th comparison and $A_l$ represents the set of alternatives which contains $i_l$. The log-likelihood of this data with nonnegative strengths $w$ is
 
 $$ \log \mathcal{L}(w) = \sum_{l=1}^n \left( \log w_{i_l} - \log \sum_{j \in A_l} w_j \right) $$
 
@@ -63,7 +63,7 @@ Both of these two varieties of algorithms work well when the comparison data mee
 
 > In every possible partition of the [set of choices] into two nonempty subsets, some [item] in the second set beats some [item] in the ﬁrst set at least once.
 
-For instance, if there is a strict subset of the choices that are never compared with any choices outside of themselves, then Plackett-Luce cannot infer strength parameters for the whole set. Or, if there are any items that win every single comparison or lose  every comparison, then this assumption is also violated.
+For example, if there is a strict subset of the choices that are never compared with any choices outside of themselves, then Plackett-Luce cannot infer strength parameters for the whole set. Or, if there are any items that win every single comparison or lose  every comparison, then this assumption is also violated.
 
 This turns out to be inconvenient for many real-world data sets. The 2002 NASCAR data set that Hunter 2004 uses, for instance, violates the assumption -- the set of drivers had to be cut down to make inference work. [Guiver and Snelson 2009](https://www.microsoft.com/en-us/research/publication/bayesian-inference-for-plackett-luce-ranking-model/) proposed a Bayesian version of Plackett-Luce that handles this issue. Using a Gamma-distributed prior on the choice strengths that pulls their values to be closer to one another, their method no longer requires the regularity condition.
 
@@ -94,14 +94,10 @@ where $\lambda$ is the Lagrange multiplier associated with the sum-to-one constr
 
 $$ d_j^{(k)} = \sum_{l : j \in A_l} \frac{1}{\sum_{i \in A_l} w_i^{(k)}} $$
 
-To find the value of the Lagrange multiplier, apply the sum-to-one constraint and use Newton's method to find a positive root of
+To find the value of the Lagrange multiplier, apply the sum-to-one constraint and use Newton's method to find a root of
 
 $$ g(\lambda) = - 1 + \sum_{j=1}^m \frac{c_j + \alpha}{d_j^{(k)} + \lambda} $$
 
-with $\lambda$ initialized to $\max(0, n + m \alpha - \sum_{j=1}^m d_j^{(k)} / m)$.
-
-[comment]: <> *Claim*: The Lagrange multiplier above is always nonnegative at a critical point.
-
-[comment]: <> Proof:
+with $\lambda$ initialized to 0. In the interval $(- \min_j b_j, \infty)$, $g$ is continuous and strictly monotonically decreasing. Since its limit at $- \min_j b_j$ and $\infty$ are $+ \infty$ and -1 respectively, the intermediate value theorem implies there is a unique $\lambda$ in this interval satisfying $g(\lambda) = 0$. Newton's method works well in this case because the first derivative of $g$ is continuous and never zero in this interval.
 
 ## Results
