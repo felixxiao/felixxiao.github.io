@@ -59,11 +59,11 @@ There is no closed-form expression for the strengths that maximize the likelihoo
 
 2. A more recent spectral algorithm based on the stationary distribution of a Markov chain illustrated in [Maystre and Grossglauser 2015](https://papers.nips.cc/paper/5681-fast-and-accurate-inference-of-plackettluce-models)
 
-Both of these two varieties of algorithms work well when the comparison data meets a particular regularity condition -- Assumption 1 of Hunter 2004:
+Both of these two varieties of algorithms work only when the comparison data meets a particular regularity condition -- Assumption 1 of Hunter 2004:
 
 > In every possible partition of the [set of choices] into two nonempty subsets, some [item] in the second set beats some [item] in the ﬁrst set at least once.
 
-For example, if there is a strict subset of the choices that are never compared with any choices outside of themselves, then Plackett-Luce cannot infer strength parameters for the whole set. Or, if there are any items that win every single comparison or lose  every comparison, then this assumption is also violated.
+For example, if there is a strict subset of the choices that are never compared with any choices outside of themselves, then Plackett-Luce cannot infer strength parameters for the whole set. Or, if there are any items that win every single comparison or lose  every comparison, then this assumption is also violated. We will refer to Assumption 1 as the strongly connected components assumption, since it is equivalent to the directed graph of comparisons being strongly connected (see Maystre 2015 for details).
 
 This turns out to be inconvenient for many real-world data sets. The 2002 NASCAR data set that Hunter 2004 uses, for instance, violates the assumption -- the set of drivers had to be cut down to make inference work. [Guiver and Snelson 2009](https://www.microsoft.com/en-us/research/publication/bayesian-inference-for-plackett-luce-ranking-model/) proposed a Bayesian version of Plackett-Luce that handles this issue. Using a Gamma-distributed prior on the choice strengths that pulls their values to be closer to one another, their method no longer requires the regularity condition.
 
@@ -77,7 +77,13 @@ Without the equality constraint on the $w_k$, the problem becomes unbounded -- t
 
 ![](../../assets/luce1.png)
 
-It is interesting to note that this penalized log-likelihood formulation is equivalent to Bayesian inference of the Plackett-Luce model with a symmetric Dirichlet prior on the choice strengths. The penalty term is also concave thanks to $\alpha \geq 0$, so following the technique in Hunter 2004, we obtain the following minorization of the above:
+It is interesting to note that this penalized log-likelihood formulation is equivalent to Bayesian inference of the Plackett-Luce model with a symmetric Dirichlet prior on the choice strengths.
+
+The sum of $\log$ functional form of the regularization term is ideal in this case because it both preserves the concavity of the (re-parametrized) objective function and lends itself to optimization by the same MM algorithm as in the unpenalized case. There are two ways to extend the MM algorithm: using the method of Lagrange multipliers in the maximization step and adding a normalizing term to the objective to make it bounded.
+
+## Solving the Lagrangian with a Newton subroutine
+
+Following the technique in Hunter 2004, we obtain the following minorization of the penalized likelihood:
 
 $$ Q(w | w^{(k)}) = \sum_{l=1}^n \left( \log w_{i_l} - \frac{\sum_{j \in A_l} w_j}{\sum_{j \in A_l} w_j^{(k)}} \right) + \alpha \sum_{k=1}^m \log w_k $$
 
@@ -98,6 +104,44 @@ To find the value of the Lagrange multiplier, apply the sum-to-one constraint an
 
 $$ g(\lambda) = - 1 + \sum_{j=1}^m \frac{c_j + \alpha}{d_j^{(k)} + \lambda} $$
 
-with $\lambda$ initialized to 0. In the interval $(- \min_j b_j, \infty)$, $g$ is continuous and strictly monotonically decreasing. Since its limit at $- \min_j b_j$ and $\infty$ are $+ \infty$ and -1 respectively, the intermediate value theorem implies there is a unique $\lambda$ in this interval satisfying $g(\lambda) = 0$. Newton's method works well in this case because the first derivative of $g$ is continuous and never zero in this interval.
+with $\lambda$ initialized to 0. In the interval $(- \min_j d_j, \infty)$, $g$ is continuous and strictly monotonically decreasing. Since its limit at $- \min_j d_j$ and $\infty$ are $+ \infty$ and -1 respectively, the intermediate value theorem implies there is a unique $\lambda$ in this interval satisfying $g(\lambda) = 0$. Newton's method works well in this case because the first derivative of $g$ is continuous and never zero in this interval.
+
+## Adding a normalizing term
+
+Rather than finding the Lagrange multiplier at each iteration, we can modify the objective function by adding a normalizing term that makes it bounded and removes the need for the equality constraint.
+
+$$ \mathcal{l}_\alpha (w) = \sum_{l=1}^n \left( \log w_{i_l} - \log \sum_{j \in A_l} w_j \right) +\alpha \sum_{k=1}^m \left( \log w_k - \log \sum_{j=1}^m w_j \right) $$
+
+The optimal solution of this unconstrained problem, after dividing by its sum, equals the optimal solution of the above constrained problem. This also shows that this penalized likelihood is equivalent to giving each item a win against every other item in a comparison weighted by $\alpha$. We apply the same minorization technique as before. The update equations for the strengths are:
+
+$$ w_i^{(k+1)} = \frac{c_i + \alpha}{d_j^{(k)} + \alpha / \bar{w}} $$
+
+Where $\bar{w}$ is the mean of the $w$. Empirically, this method converges faster than the Lagrange multiplier method and we will adopt it going forward.
+
+## Computing a regularization path using warm-starts
+
+Each value of $\alpha$ will give us a different set of optimal $w$ and inferred ranking of the items. To select our final $\alpha$, it is useful to see how the weights evolve as the penalty term changes. To make the task of inferring the strengths for a range of penalty coefficients easier, we employed a warm-start approach that uses the optimal $w$ computed for one $\alpha$ as the initialization point of the MM algorithm to solve for a slightly different $\alpha$. Given an $\alpha$ sequence $0 = \alpha_0 < \alpha_1 < ... < \alpha_T$ and set of comparisons $\{(i_l, A_l)\}_1^n$:
+
+```
+function PL_regularization_path:
+  w[T+1] = [1, ..., 1]
+  For t = T, T-1, ..., 0:
+    find w[t] iteratively using MM update equations initialized at w[t+1] with penalty a[t]
+  For t = 0, ..., T:
+    w[t] = w[t] / sum(w[t])
+  Return w
+```
 
 ## Results
+
+We apply our PL regularization path algorithm to the 2002 NASCAR dataset used in Hunter 2004, Guiver and Snelson 2009 for penalty parameters ranging from $\alpha = 0.1$ to $\alpha = 5$ (the case of $\alpha = 0$ is unbounded because the data violates the strongly connected assumption). This shows the inferred strength of each of the 87 contestants for varying $\alpha$.
+
+![](../../assets/luce_path.png)
+
+Plotting the strengths on a log-scale shows rank-crossing on the lower-ranked contestants.
+
+![](../../assets/luce_path_log.png)
+
+These are the ranks implied by the strengths. The ranks are much less stable in the bottom half of the contestants. The top 26 do not change rank in the entire path.
+
+![](../../assets/luce_rank.png)
