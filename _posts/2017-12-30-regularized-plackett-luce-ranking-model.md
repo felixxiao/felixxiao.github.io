@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Regularized Plackett-Luce Ranking Model"
-description: "How to gamble in horse racing"
+title: "The Regularized Plackett-Luce Ranking Model"
+description:
 category: 
-tags: []
+tags: [MM algorithm, ranking models, regularization]
 ---
 
 $$
