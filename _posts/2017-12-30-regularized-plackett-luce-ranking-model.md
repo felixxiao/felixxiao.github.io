@@ -142,6 +142,6 @@ Plotting the strengths on a log-scale shows rank-crossing on the lower-ranked co
 
 ![](../../assets/luce_path_log.png)
 
-These are the ranks implied by the strengths. The ranks are much less stable in the bottom half of the contestants. The top 26 do not change rank in the entire path.
+These are the ranks implied by the strengths. The ranks are much less stable in the bottom half of the contestants. The top 26 do not change rank in the entire path, while the middle and lower ranked drivers switch ranks very frequently.
 
 ![](../../assets/luce_rank.png)
