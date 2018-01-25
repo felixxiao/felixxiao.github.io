@@ -44,8 +44,8 @@ $$
 \begin{align}
 \Prb( \max_{0 \leq s \leq t} W_s \geq a, W_t \leq x)
 &= \Prb(T_a \leq t, W_t \leq x) \\
-&= \Prb(T_a \leq t, 2a - x \leq B_t) \\
-&= \Prb(2a - x \leq B_t) \\
+&= \Prb(T_a \leq t, 2a - x \leq W_t) \\
+&= \Prb(2a - x \leq W_t) \\
 &= 1 - \Phi\left( \frac{2a - x}{\sqrt{t}} \right) \\
 
 \Prb( \max_{0 \leq s \leq t} W_s \geq a, W_t \in \diff x)
