@@ -38,7 +38,7 @@ There is one particular quantity of the Brownian bridge that is used commonly in
 
 The distribution of $M$ can be derived as follows. The strategy is to first get the joint density of the running maximum and current value of a _Wiener_ process and condition on the current value at 1 being 0 to get the standard Brownian bridge.
 
-To get the joint density, we first define $T_a = \inf {t \geq 0 : W_t = a}$ to be the first time that $W_t$ hits level $a$ and note that for $a \geq 0$ the event ${T_a \leq t}$ is equivalent to ${\max_{0 \leq s \leq t} W_s \geq a}$; in other words the process hitting $a$ before time $t$ happens if and only if its running maximum before $t$ is greater than or equal to $a$.
+To get the joint density, we first define $T_a = \inf \{t \geq 0 : W_t = a\}$ to be the first time that $W_t$ hits level $a$ and note that for $a \geq 0$ the event ${T_a \leq t}$ is equivalent to ${\max_{0 \leq s \leq t} W_s \geq a}$; in other words the process hitting $a$ before time $t$ happens if and only if its running maximum before $t$ is greater than or equal to $a$. Using the reflection principle,
 
 $$
 \begin{align}
