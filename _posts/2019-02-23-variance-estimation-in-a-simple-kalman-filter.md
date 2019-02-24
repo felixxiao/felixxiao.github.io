@@ -43,7 +43,7 @@ $$
 \end{align}
 $$
 
-Now we have one equation and two unknowns. The trick is taking the lag-2 difference of the series to derive a second, independent equation:
+Now we have one equation and two unknowns. The trick is to take the lag-2 difference of the series to derive a second equation:
 
 $$
 \begin{align}
@@ -67,8 +67,8 @@ $$
     2 & 2
 \end{bmatrix}
 \begin{bmatrix}
-    \sigma_S^2 \\
-    \sigma_V^2
+    \hat{\sigma}_S^2 \\
+    \hat{\sigma}_V^2
 \end{bmatrix}
 =
 \begin{bmatrix}
@@ -76,3 +76,121 @@ $$
     Y_2
 \end{bmatrix}
 $$
+
+It is unbiased since $\Expect[Y_i] = \Expect[(V_{t+i} - V_t)^2]$.
+
+## The OLS estimator with $k$ lagged differences
+
+It is possible to obtain more equations by taking larger lagged differences of $V_t$. Since this leads to an overdetermined linear system, we use the ordinary least squares estimator to decide the sigmas. The estimator has the traditional analytic form:
+
+$$
+\begin{bmatrix}
+    \hat{\sigma}_S^2 \\
+    \hat{\sigma}_V^2
+\end{bmatrix}
+=
+(X^T X)^{-1} X^T
+\begin{bmatrix}
+    Y_1 \\
+    \vdots \\
+    Y_k
+\end{bmatrix}
+$$
+
+where
+
+$$
+X = \begin{bmatrix}
+    1 & 2 \\
+    \vdots & \vdots \\
+    k & 2
+\end{bmatrix}
+$$
+
+Like the $k=2$ special case, the general OLS estimator is also unbiased for the same reason. The more interesting question is what is the optimal $k$ to use given $n$ and the population parameters, where optimal is defined here to be the estimator that has the minimum variance.
+
+### Variance of the $k$ OLS estimator
+
+The variance is hard to compute for this estimator due to the fact that the $Y_i$ are correlated in a rather complicated way. This stands in contrast with normal OLS regression, where the $Y_i$ are all assumed to be uncorrelated, and the variance of the coefficients estimator would monotonically decrease as the number of rows increases. Here, the optimal $k$ can be thought of as the equilibrium point between two conflicting forces:
+
+* If correlation between successive $Y_i$ is sufficiently low, then having more lags decreases the estimator variance by adding new information.
+* The variance of $Y_i$ increases monotically with $i$ because larger lags have more noise terms. This makes the bigger $i$ rows far less useful.[^1]
+
+Here's the analytical form of the $k$ lags OLS estimator covariance matrix:
+
+$$
+\Var(\hat{\sigma}^2) = (X^T X)^{-1} X^T \Sigma_Y X (X^T X)^{-1}
+$$
+
+where
+
+$$
+(X^T X)^{-1} X^T =
+\frac{3}{k(k-1)}
+\begin{bmatrix}
+    \frac{4}{k+1} & -1 \\
+    -1 & \frac{2k+1}{6}
+\end{bmatrix}
+\begin{bmatrix}
+    1 & \dots & k \\
+    2 & \dots & 2
+\end{bmatrix}
+$$
+
+and letting $i \geq j$,
+
+$$
+\begin{align}
+(\Sigma_Y)_{ij}
+&= \Cov(Y_i, Y_j) \\
+&= \frac{2}{(n-i)(n-j)} [g(n, i, j) \sigma_S^4 + h(n, i, j) \sigma_V^4 ] \\
+g(n, i, j) &= (n - i) j
+    \left( \frac{(j-1)(2j-1)}{3} + (i-j+1) j \right) - \frac{1}{3} (j-1) j^2 (\frac{j}{2} - 1) \\
+h(n, i, j) &= (4 + 2_{\{i = j\}}) (n-i) - 2 (j - 1)
+\end{align}
+$$
+
+Everything except the $\Sigma_Y$ can easily be derived with basic matrix operations.
+
+### Covariance matrix of $Y$ derivation
+
+The derivation uses a number of lemmas:
+
+$$
+\begin{align}
+(V_{t+1} - V_t)^2
+&= (\epsilon_t + \dots + \epsilon_{t+i-1} + \eta_{t+i} - \eta_t)^2 \\
+&= E_{ti}^2 + 2 E_{ti} H_{ti} + H_{ti}^2
+\end{align}
+$$
+
+where $E_{ti} = \epsilon_t + \dots + \epsilon_{t+i-1}$ and $H_{ti} = \eta_{t+i} - \eta_t$ are jointly Gaussian. Also,
+
+$$
+\begin{align}
+\Cov(E_{ti}, E_{sj}) &= |\{t, \dots, t+i-1\} \cap \{s, \dots, s+j-1\}| \\
+\Cov(H_{ti}, H_{sj}) &= |\{t, t+i\} \cap \{s, s+j\}| \\
+\Cov(E_{ti}^2, E_{sj} H_{sj}) &= 0 \\
+\Cov(H_{ti}^2, E_{sj} H_{sj}) &= 0 \\
+\Cov(E_{ti} H_{ti}, E_{sj} H_{sj}) &= 0
+\end{align}
+$$
+
+If $A$ and $B$ are jointly Gaussian with mean 0 and covariance $c$ then $\Cov(A^2, B^2) = 2 c^2$. Putting all this together:
+
+$$
+\begin{align}
+\Cov(Y_i, Y_j)
+&= \Cov \left(
+    \frac{1}{n-i} \sum_{t=1}^{n-i} (V_{t+i} - V_t)^2,
+    \frac{1}{n-j} \sum_{s=1}^{n-j} (V_{t+j} - V_t)^2
+\right) \\
+&= \frac{1}{n-i} \frac{1}{n-j} \sum_{t=1}^{n-i} \sum_{s=1}^{n-j} \Cov(E_{ti}^2, E_{sj}^2) + \Cov(H_{ti}^2, H_{sj}^2)
+\end{align}
+$$
+
+## Optimal $k$
+
+___
+
+[^1]: This opens up another interesting question of how the rows might be weighted so as to give precedence for the smaller $i$ rows in computing the estimator.
