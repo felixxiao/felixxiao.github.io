@@ -143,14 +143,14 @@ $$
 \begin{align}
 (\Sigma_Y)_{ij}
 &= \Cov(Y_i, Y_j) \\
-&= \frac{2}{(n-i)(n-j)} [g(n, i, j) \sigma_S^4 + h(n, i, j) \sigma_V^4 ] \\
+&= \frac{2}{(n-i)(n-j)} [g(n, i, j) \sigma_S^4 + h(n, i, j) \sigma_V^4 ] + \frac{4j}{n-j}\sigma_S^2 \sigma_V^2\\
 g(n, i, j) &= (n - i) j
-    \left( \frac{(j-1)(2j-1)}{3} + (i-j+1) j \right) - \frac{1}{3} (j-1) j^2 (\frac{j}{2} - 1) \\
-h(n, i, j) &= (4 + 2_{\{i = j\}}) (n-i) - 2 (j - 1)
+    \left( \frac{(j+1)(2j+1)}{3} + (i-j-1) j \right) - \frac{1}{6} (j+1) j^2 (j - 1) \\
+h(n, i, j) &= (4 + 2_{\{i = j\}}) (n-i) + 2 (n - i - j)
 \end{align}
 $$
 
-Everything except the $\Sigma_Y$ can easily be derived with basic matrix operations.
+Everything except the $\Sigma_Y$ can easily be derived with basic matrix operations. Note the above is valid only for $n > i + j$.
 
 ### Covariance matrix of $Y$ derivation
 
@@ -168,11 +168,14 @@ where $E_{ti} = \epsilon_t + \dots + \epsilon_{t+i-1}$ and $H_{ti} = \eta_{t+i} 
 
 $$
 \begin{align}
-\Cov(E_{ti}, E_{sj}) &= |\{t, \dots, t+i-1\} \cap \{s, \dots, s+j-1\}| \\
-\Cov(H_{ti}, H_{sj}) &= |\{t, t+i\} \cap \{s, s+j\}| \\
+\Cov(E_{ti}, E_{sj}) &= |\{t, \dots, t+i-1\} \cap \{s, \dots, s+j-1\}| \sigma_S^2 \\
+\Cov(H_{ti}, H_{sj}) &=
+(1_{\{t=s\}} + 1_{\{t+i=s+j\}} - 1_{\{t+i=s\}} - 1_{\{t=s+j\}}) \sigma_V^2 \\
+\Cov(E_{ti}, H_{sj}) &= 0 \\
 \Cov(E_{ti}^2, E_{sj} H_{sj}) &= 0 \\
 \Cov(H_{ti}^2, E_{sj} H_{sj}) &= 0 \\
-\Cov(E_{ti} H_{ti}, E_{sj} H_{sj}) &= 0
+\Cov(E_{ti} H_{ti}, E_{sj} H_{sj}) &= \Cov(E_{ti}, E_{sj}) \Cov(H_{ti}, H_{sj}) \\
+&= \min(i,j) (1_{\{s=t\}} + 1_{\{s+j=t+i\}}) \sigma_S^2 \sigma_V^2
 \end{align}
 $$
 
@@ -185,11 +188,15 @@ $$
     \frac{1}{n-i} \sum_{t=1}^{n-i} (V_{t+i} - V_t)^2,
     \frac{1}{n-j} \sum_{s=1}^{n-j} (V_{t+j} - V_t)^2
 \right) \\
-&= \frac{1}{n-i} \frac{1}{n-j} \sum_{t=1}^{n-i} \sum_{s=1}^{n-j} \Cov(E_{ti}^2, E_{sj}^2) + \Cov(H_{ti}^2, H_{sj}^2)
+&= \frac{1}{n-i} \frac{1}{n-j} \sum_{t=1}^{n-i} \sum_{s=1}^{n-j} \Cov(E_{ti}^2, E_{sj}^2) + \Cov(H_{ti}^2, H_{sj}^2) + 2 \Cov(E_{ti} H_{ti}, E_{sj} H_{sj})
 \end{align}
 $$
 
+By carefully counting the terms in the double summation we arrive at the variance formula above.
+
 ## Optimal $k$
+
+
 
 ___
 
