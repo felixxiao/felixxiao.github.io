@@ -152,6 +152,17 @@ $$
 
 Everything except the $\Sigma_Y$ can easily be derived with basic matrix operations. Note the above is valid only for $n > i + j$.
 
+The asymptotic ($n >> k$) $\Sigma_Y$ is:
+
+$$
+\frac{2}{n} \left[
+  j \left(
+    \frac{(j+1)(2j+1)}{3} + (i-j-1)j
+  \right)
+  \sigma_S^4 + (6 + 2_{\{i=j\}}) \sigma_V^4
+\right] + \frac{4j}{n} \sigma_S^2 \sigma_V^2
+$$
+
 ### Covariance matrix of $Y$ derivation
 
 The derivation uses a number of lemmas:
@@ -196,7 +207,33 @@ By carefully counting the terms in the double summation we arrive at the varianc
 
 ## Optimal $k$
 
+From observing the closed form of $\Sigma_Y$ (in the simplifying case when $n >> k$), we note that the two variance parameters $\sigma_V^2$ and $\sigma_S^2$ contribute to the entries of that matrix in different ways. In particular, whereas the $\sigma_S^4$ term grows cubically with the lag order, the $\sigma_V^4$ term remains constant. This makes intuitive sense, as each additional lag increases the number of $\epsilon_t$ state-transitionary noise terms, but the number of $\eta_t$ noise terms remains constant. We can therefore conclude that models where true $\sigma_V^2 / \sigma_S^2$ ratio is large have optimal $k$ that is large.
 
+A second observation is that both the $\sigma_V^4$ and $\sigma_S^4$, as well as the $\sigma_V^2 \sigma_S^2$ term, asymptotically vary in $n$ by $1 / n$. Since there is no asymptotically differing impact between the two variance parameters, and the $(X^T X)^{-1} X^T$ does not contain $n$, the optimal $k$ does not depend on $n$.
+
+The figure below plots the optimal $k$ of the OLS estimator at varying values of the $\sigma_V^2 / \sigma_S^2$ ratio for large $n$.
+
+![](../../assets/optimal_k.png)
+
+It appears this could be well-approximated by a square-root relationship, but I have not yet managed to find a theoretical reason for it.
+
+## Generalized least squares
+
+Statisticians have developed the tool of *generalized* least squares (GLS) for cases when the response variables are dependent on one another. Supposing we know the true covariance matrix of the response variables, GLS fits the coefficients of an affine regression function by minimizing the Mahalanobis distance of the residuals. The optimization problem is:
+
+$$
+\min_\beta (y - X \beta)^T \Sigma_Y^{-1} (y - X \beta)
+$$
+
+Both OLS and weighted least squares regressions are special cases of GLS, where the $\Sigma_Y$ are identity and diagonal matrices, respectively. An extension of the Gauss-Markov theorem states that GLS is the best (in terms of expected squared error loss of estimated coefficients) linear estimator where the residuals may be correlated.
+
+The problem with GLS in practice is that typically the $\Sigma_Y$ matrix is *a priori* unknown. To infer it from the data would require first running OLS and then estimating the residual covariance. However, it is impossible to estimate covariance from a single data point (the $i$th and $j$th residuals of the regression data), so the practioner must specify some special structure to the residual covariance matrix, such as it being low-rank or diagonal.
+
+Fortunately in this case, only two parameters are needed to obtain the residual covariance matrix, $\sigma_V^2$ and $\sigma_S^2$. This lends itself to an iterative procedure that alternates between computing the residual matrix from the latest variance parameters and running GLS using the estimated residual matrix to estimate the variance parameters. For the first GLS, one may use the identity matrix as the residual covariance matrix. This is an instance of the general method known as *feasible generalized least squares*.
+
+### Convergence of feasible GLS estimator
+
+### Variance of feasible GLS estimator versus OLS
 
 ___
 
