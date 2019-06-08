@@ -29,7 +29,7 @@ To infer the structure of $f$ from observed pairs of $X$ and $Y$, we need to spe
 
 The time series version of this prediction problem adds an implicit ordering to the data points, a feature that is typically ignored on the assumption that $f$ is invariant across time. However, this assumption is unrealistic in many practical applications. For example in my domain of finance, there is a well-known phenomenon of "alpha decay", in which a signal that has predictive power on asset returns loses its predictability over time. Another example can be found in ecology, where environmental changes may lead to a breakdown or reversal of previously observed patterns.
 
-To model this complexity, statisticians have generalized the static linear model into a varying coefficient model. Older work on such models typically impose some semi-parametric structure on the coefficients, for instance local-linearity ([Fan and Zhang 1999](https://projecteuclid.org/euclid.aos/1017939139)). Here, I will explore a different framework for the varying coefficient model, one based on Gaussian process regression.
+To model this complexity, statisticians have generalized the static linear model into a varying coefficient model. Older work on such models typically impose some semi-parametric structure on the coefficients, for instance local-linearity ([Fan and Zhang 1999](https://projecteuclid.org/euclid.aos/1017939139)). Here, I will explore a different framework for the varying coefficient model that uses a Gaussian process as a Bayesian prior.
 
 A Gaussian process is an infinite, ordered collection of Gaussian random variables, any finite subset of which is jointly Gaussian. A Gaussian process can be fully characterized by its mean $\mu(t)$ and covariance $k(s, t)$ functions, which take in the time-index and output the first two moments of the corresponding random variables in the set. In most statistics applications, $\mu(t) = 0$ and $k(s, t)$ is a function that depends only on $s - t$. In Gaussian process regression, the index is not time but rather the values of the covariates corresponding to the response. Some parametric function called the kernel is chosen for $k$ and the prediction interval for a new input $x'$ is a Gaussian distribution conditioned on all the observed $(x, y)$.
 
@@ -39,4 +39,13 @@ $$Y_t = b_t X_t + \epsilon_t$$
 
 $$\{b_t\} \sim \mathcal{GP}(0, K)$$
 
-where $K$ is a positive-semidefinite function that takes in the difference between two time-indices.
+$$\epsilon_t \sim \mathcal{N}(0, \sigma^2)$$
+
+where $K$ is a positive-semidefinite function that takes in the difference between two time-indices. Let $x$ and $y$ be the vectors of $X$ and $Y$ realizations, let $\Sigma_b$ be the prior covariance matrix of $b$ i.e. $(\Sigma_b)_{ij} = K(i - j)$, and let $D : \R^n \mapsto \R^{n \times n}$ map a vector to a diagonal matrix. The posterior distribution of $\{b\}$ at the sample indices is a multivariate Gaussian with mean and covariances:
+
+$$
+\begin{align}
+\Expect[b | x, y] &= \Sigma_b D(x) \left[ D(x) \Sigma_b D(x) + I_n \sigma^2 \right]^{-1} y \\
+\Cov(b | x, y) &= \Sigma_b - \Sigma_b D(x) \left[D(x) \Sigma_b D(x) + I_n \sigma^2\right]^{-1} D(x) \Sigma_b
+\end{align}
+$$
