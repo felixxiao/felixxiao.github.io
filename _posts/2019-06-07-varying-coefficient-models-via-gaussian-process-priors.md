@@ -41,11 +41,23 @@ $$\{b_t\} \sim \mathcal{GP}(0, K)$$
 
 $$\epsilon_t \sim \mathcal{N}(0, \sigma^2)$$
 
-where $K$ is a positive-semidefinite function that takes in the difference between two time-indices. Let $x$ and $y$ be the vectors of $X$ and $Y$ realizations, let $\Sigma_b$ be the prior covariance matrix of $b$ i.e. $(\Sigma_b)_{ij} = K(i - j)$, and let $D : \R^n \mapsto \R^{n \times n}$ map a vector to a diagonal matrix. The posterior distribution of $\{b\}$ at the sample indices is a multivariate Gaussian with mean and covariances:
+where $K : \R^n \times \R^m \mapsto \R^{n \times m}$ is a positive-semidefinite function that takes in two (sets of) time-indices and outputs the prior covariance (matrix) of $b$ between them.
+Let $\tau$ be the set of time-indices for which we observe data and let $\upsilon$ be the set of time-indices we are inferring $b$ for. Let $x$ and $y$ be the vectors of $X$ and $Y$ realizations and let $D : \R^n \mapsto \R^{n \times n}$ map a vector to a diagonal matrix. The joint distribution of $(b_\upsilon, y_\tau)$ is a multivariate Gaussian with mean vector $\[0 0\]$ and covariance matrix:
+
+$$
+\begin{bmatrix}
+K(\upsilon, \upsilon) & K(\upsilon, \tau) D(x) \\
+D(x) K(\tau, \upsilon) & D(x) K(\tau, \tau) D(x) + I \sigma^2
+\end{bmatrix}
+$$
+
+And the posterior Gaussian of $b_\upsilon$ has mean and covariance:
 
 $$
 \begin{align}
-\Expect[b | x, y] &= \Sigma_b D(x) \left[ D(x) \Sigma_b D(x) + I_n \sigma^2 \right]^{-1} y \\
-\Cov(b | x, y) &= \Sigma_b - \Sigma_b D(x) \left[D(x) \Sigma_b D(x) + I_n \sigma^2\right]^{-1} D(x) \Sigma_b
+\Expect[b_\upsilon | x, y] &= K(\upsilon, \tau) D(x) \left[ D(x) K(\tau, \tau) D(x) + I_n \sigma^2 \right]^{-1} y \\
+\Cov(b_\upsilon | x, y) &= K(\upsilon, \upsilon) - K(\upsilon, \tau) D(x) \left[D(x) K(\tau, \tau) D(x) + I_n \sigma^2\right]^{-1} D(x) K(\tau, \upsilon)
 \end{align}
 $$
+
+Suppose we allow no time-variance so that $K(s,t) = \theta^2$. Then, this is equivalent to ridge regression with $\lambda = \frac{\sigma^2}{\theta^2}$.
