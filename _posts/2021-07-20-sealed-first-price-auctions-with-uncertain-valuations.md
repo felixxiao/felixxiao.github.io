@@ -59,15 +59,94 @@ In the case where each $X_i$ is an exponential random variable with rate paramet
 
 $$ \Pi_i = \frac{\lambda_i}{(\sum_j \lambda_j)^2} $$
 
+This is obtained by directly evaluating the integral $(1)$. Of course this distribution isn't ideal for our application, but as far as I am aware it is the only continous distribution with a closed form payoff that doesn't use indicator functions.
+
 ## Two-player Gaussian distribution
+
+Now let's consider a more application model using Gaussian random variables for $X$. The special case of two players has an interesting result.
+
+---
 
 Suppose there are two sellers with estimation variances $\sigma_1^2$ and $\sigma_2^2$. Let
 
 $$\mu^* = \frac{1}{2} \sqrt{2 \pi (\sigma_1^2 + \sigma_2^2)}$$
 
-Then $(\mu^* , \mu^* )$ is a Nash equilibrium pair of spreads.
+Then $(\mu^* , \mu^* )$ is a Nash equilibrium.
+
+---
+
+Proof:
+
+$$
+\begin{align}
+\Pi_1
+&= \Expect[X_1 F_2^C(X_1)] \\
+&= \Expect[X_1] - \Expect[X_1 F_2(X_1)] \\
+\Expect[X_1 F_2(X_1)]
+&= \int_{-\infty}^{\infty} x F_2(x) p_1(x) \diff x \\
+&= \int_{-\infty}^{\infty} (\sigma_1 z + \mu_1) F_2(\sigma_1 z + \mu_1) p_1(\sigma_1 z + \mu_1) \sigma_1 \diff z \\
+&= \sigma_1 \int_{-\infty}^{\infty} (\sigma_1 z + \mu_1) \Phi(\frac{\sigma_1}{\sigma_2} z + \frac{\mu_1 - \mu_2}{\sigma_2}) \phi(z) \diff z \\
+\end{align}
+$$
+
+where $\phi(x)$ is the standard Gaussian PDF and $\Phi(x)$ the CDF. From here we need two lemmas.
+
+$$
+\begin{align}
+\int_{-\infty}^{\infty} x \phi(x) \Phi(a + bx) \diff x &= \frac{b}{\sqrt{1 + b^2}} \phi(\frac{a}{\sqrt{1 + b^2}}) \\
+\int_{-\infty}^{\infty} \phi(x) \Phi(a + bx) \diff x &= \Phi(\frac{a}{\sqrt{1 + b^2}})
+\end{align}
+$$
+
+To prove the former, it suffices to verify that the integrand has the antiderivative
+
+$$ \frac{b}{t} \phi(\frac{a}{t}) \Phi(x t + \frac{ab}{t}) - \phi(x) \Phi(a + bx) + C$$
+
+where $t = \sqrt{1 + b^2}$.
+
+Proof of the latter:
+
+$$
+\begin{align}
+\int_{-\infty}^{\infty} \phi(x) \Phi(a + bx) dx
+&= E \Phi(a + bX) \\
+&= E P(Z \leq a + b X | X) \\
+&= P(Z \leq a + b X) \\
+&= P(Z - b X \leq a) \\
+&= P(\mathcal{N}(0, 1 + b^2) \leq a) \\
+&= P(\mathcal{N}(0, 1) \leq \frac{a}{\sqrt{1 + b^2}}) \\
+&= \Phi(\frac{a}{\sqrt{1 + b^2}})
+\end{align}
+$$
+
+where the third equality is an application of $(2)$. After some algebra, we get
+
+
+$$\Pi_1 = \mu_1 - \frac{\sigma_1^2}{\sqrt{\sigma_1^2 + \sigma_2^2}} \phi(\frac{\mu_1 - \mu_2}{\sqrt{\sigma_1^2 + \sigma_2^2}}) - \mu_1 \Phi(\frac{\mu_1 - \mu_2}{\sqrt{\sigma_1^2 + \sigma_2^2}})$$
+
+and similarly for $\Pi_2$. Letting $d = \frac{\mu_1 - \mu_2}{\sqrt{\sigma_1^2 + \sigma_2^2}}$, the first derivative of payoff for the two players can be written:
+
+$$
+\begin{align}
+\frac{\partial \Pi_1}{\partial \mu_1} &= 1 - \frac{\sigma_1^2}{\sigma_1^2 + \sigma_2^2} d \phi(d) - \Phi(d) - \frac{\mu_1}{\sqrt{\sigma_1^2 + \sigma_2^2}} \phi(d) \\
+\frac{\partial \Pi_2}{\partial \mu_2}
+&= 1 - \frac{\sigma_2^2}{\sigma_1^2 + \sigma_2^2} (-d) \phi(-d) - \Phi(-d) - \frac{\mu_2}{\sqrt{\sigma_1^2 + \sigma_2^2}} \phi(-d) \\
+&= \frac{\sigma_2^2}{\sigma_1^2 + \sigma_2^2} d \phi(d) + \Phi(d) - \frac{\mu_2}{\sqrt{\sigma_1^2 + \sigma_2^2}} \phi(d) \\
+\end{align}
+$$
+
+(From the symmetry of the standard Gaussian distribution, we know $\phi(-x) = \phi(x)$ and $\Phi(-x) = 1 - \Phi(x)$).
+
+Plugging $\mu^* $ into $\mu_1$ and $\mu_2$ (so $d = 0$) will make both derivatives zero. $\square$
+
+---
 
 Suppose $(\mu_1, \mu_2)$ is a Nash equilibrium pair of spreads. Then $\mu_1 = \mu_2 = \mu^* $.
+
+---
+
+Proof. $\frac{\partial \Pi_2}{\partial \mu_2} - \frac{\partial \Pi_1}{\partial \mu_1} = 2 d \phi(d) + 2 \Phi(d) - 1 = 0$ only if $d = 0$.
+
 
 ## Perfect valuations
 
