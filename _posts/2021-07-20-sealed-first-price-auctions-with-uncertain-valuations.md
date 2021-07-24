@@ -35,7 +35,7 @@ where $F^C_j(x) = 1 - F_j(x) = \Prb(X_j \gt x)$ is the complementary CDF of $X_j
 
 The reason these two expressions are equal is that, for any random variable $X$, function $f$, and event $A$:
 
-$$\Expect[f(X) | A] \Prb(A) = \Expect[f(X) P(A|X)] \tag{2}$$
+$$\Expect[f(X) | A] \Prb(A) = \Expect[f(X) \Prb(A|X)] \tag{2}$$
 
 Proof:
 
@@ -63,13 +63,13 @@ This is obtained by directly evaluating the integral $(1)$. Of course this distr
 
 ## Two-player Gaussian distribution
 
-Now let's consider a more application model using Gaussian random variables for $X$. The special case of two players has an interesting result.
+Now let's consider a more applicable model using Gaussian random variables for $X$. The special case of two players has an interesting result.
 
 ---
 
 Suppose there are two sellers with estimation variances $\sigma_1^2$ and $\sigma_2^2$. Let
 
-$$\mu^* = \frac{1}{2} \sqrt{2 \pi (\sigma_1^2 + \sigma_2^2)}$$
+$$ \mu^* = \frac{1}{2} \sqrt{2 \pi (\sigma_1^2 + \sigma_2^2)} \tag{3} $$
 
 Then $(\mu^* , \mu^* )$ is a Nash equilibrium.
 
@@ -145,7 +145,28 @@ Suppose $(\mu_1, \mu_2)$ is a Nash equilibrium pair of spreads. Then $\mu_1 = \m
 
 ---
 
-Proof. $\frac{\partial \Pi_2}{\partial \mu_2} - \frac{\partial \Pi_1}{\partial \mu_1} = 2 d \phi(d) + 2 \Phi(d) - 1 = 0$ only if $d = 0$.
+Proof: $\frac{\partial \Pi_2}{\partial \mu_2} - \frac{\partial \Pi_1}{\partial \mu_1} = 2 d \phi(d) + 2 \Phi(d) - 1 = 0$ only if $d = 0$. Hence $\mu_1 = \mu_2$. To make both derivatives zero, they must equal $\mu^* $. $\square$
+
+## Numerical integration and optimization
+
+In the case of more than two players with arbitrary spreads and valuation variances, there is no closed form expression for the expected profit or its spread derivatives under a Gaussian distribution, so we must use numerical integration. Then we can use the evaluation of the derivatives in an optimization algorithm to compute the best strategy for one player given the others'.
+
+Since we only care about the derivatives of an expected profit function with respect to the player's own spread, we can take advantage of the following fact:
+
+$$ \frac{\partial \Pi_i}{\partial \theta_i} = E[X_i h(X_i) \frac{\partial}{\partial \theta_i}\log(p_i(X_i))] \tag{4} $$
+
+where $h_i(x) = \prod_{j \neq i} F_j^C(x)$ (which doesn't include $\theta_i$). Note this is true for any continuous distribution of $X_i$ parameterized by $\theta_i$. Now suppose $X_i$ is Gaussian, so $\frac{\partial \log p}{\partial u} = \frac{x - u}{\sigma^2}$. Let $g_p(u) = E[X^p h(X)]$ so $\Pi = g_1(u)$. It is also true that for any natural number $p$,
+
+$$\frac{\partial g_p}{\partial u} = \frac{g_{p+1} - g_p u}{\sigma^2}$$
+
+So we can write derivatives of expected profit in terms of the "moments" and evaluate them too using numerical integration.
+
+$$
+\begin{align}
+\frac{\partial g_1}{\partial u} &= \frac{g_{2} - g_1 u}{\sigma^2} \\
+\frac{\partial^2 g_1}{(\partial u)^2} &= \frac{1}{\sigma^2} (\frac{1}{\sigma^2} (g_3 - 2 g_2 u + g_1 u^2) + g_1) \\
+\end{align}
+$$
 
 
 ## Perfect valuations
@@ -155,3 +176,4 @@ The following two statements are equivalent:
 1. There are at least two players with estimation variance of zero (perfect valuations).
 
 2. In all Nash equilibria, there are at least two optimal spreads of zero.
+
