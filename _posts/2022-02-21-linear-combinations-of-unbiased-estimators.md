@@ -41,7 +41,7 @@ $$
 \newcommand{\ones}{\boldsymbol{1}}
 \begin{align}
     \min && w' \Sigma w \\
-    \text{s.t.} && w' \boldsymbol{1} = 1 
+    \text{s.t.} && w' \boldsymbol{1} = 1
 \end{align}
 $$
 
@@ -105,5 +105,4 @@ which is beautifully similar to the unbiased solution and results in the lower e
 
 $$ \frac{1}{1 + \ones' \Omega^{-1} \ones} $$
 
-## Estimation from data and linear regression
 
